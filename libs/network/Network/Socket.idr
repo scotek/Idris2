@@ -167,6 +167,43 @@ recv sock len = do
            freeRecvStruct (RSPtr recv_struct_ptr)
            pure $ Right (payload, recv_res)
 
+||| Non-blocking variant of `recv`.  Receive waiting data on the specified socket or return.
+|||
+||| Returns on failure a `SocketError`
+||| Returns on success a pairing of:
+||| + `String`     :: The payload.
+||| + `ResultCode` :: The result of the underlying function.
+|||
+||| @sock The socket on which to receive the message.
+||| @len  How much of the data to receive.
+export
+recv_nb : HasIO io
+    => (sock : Socket)
+    -> (len : ByteLength)
+    -> io (Either SocketError (String, ResultCode))
+recv_nb sock len = do
+  -- Firstly make the request, get some kind of recv structure which
+  -- contains the result of the recv and possibly the retrieved payload
+  recv_struct_ptr <- primIO $ prim__idrnet_recv_nb (descriptor sock) len
+  recv_res <- primIO $ prim__idrnet_get_recv_res recv_struct_ptr
+
+  if recv_res == (-1)
+    then do
+      -- should probably have a nicer return type here but for now just propagate the "error" for no data waiting.
+      errno <- getErrno
+      freeRecvStruct (RSPtr recv_struct_ptr)
+      pure $ Left errno
+    else
+      if recv_res == 0
+        then do
+           freeRecvStruct (RSPtr recv_struct_ptr)
+           pure $ Left 0
+        else do
+           payload <- primIO $ prim__idrnet_get_recv_payload recv_struct_ptr
+           freeRecvStruct (RSPtr recv_struct_ptr)
+           pure $ Right (payload, recv_res)
+
+
 recvAllRec : (Monoid a, HasIO io) => io (Either SocketError a) -> SnocList a -> io (Either SocketError a)
 recvAllRec recv_from_socket acc = case !recv_from_socket of
   Left 0 => pure (Right $ concat acc)

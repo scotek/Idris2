@@ -94,6 +94,8 @@ void *idrnet_recv(int sockfd, int len);
 // Receives directly into a buffer
 int idrnet_recv_buf(int sockfd, void *buf, int len);
 int idrnet_recv_bytes(int sockfd, void *buf, int len);
+// Non-blocking recv
+void *idrnet_recv_nb(int sockfd, int len);
 
 // UDP Send
 int idrnet_sendto(int sockfd, char *data, char *host, int port, int family);
@@ -119,5 +121,6 @@ int idrnet_getaddrinfo(struct addrinfo **address_res, char *host, int port,
                        int family, int socket_type);
 
 int idrnet_geteagain();
+int idrnet_getewouldblock();
 
 int isNull(void *ptr);

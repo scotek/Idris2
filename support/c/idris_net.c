@@ -267,6 +267,22 @@ void *idrnet_recv(int sockfd, int len) {
   return (void *)res_struct;
 }
 
+// Non-blocking variant of recv.
+void *idrnet_recv_nb(int sockfd, int len) {
+  idrnet_recv_result *res_struct =
+      (idrnet_recv_result *)malloc(sizeof(idrnet_recv_result));
+  char *buf = malloc(len + 1);
+  memset(buf, 0, len + 1);
+  int recv_res = recv(sockfd, buf, len, MSG_DONTWAIT);
+  res_struct->result = recv_res;
+
+  if (recv_res > 0) {         // Data was received
+    buf[recv_res + 1] = 0x00; // Null-term, so Idris can interpret it
+  }
+  res_struct->payload = buf;
+  return (void *)res_struct;
+}
+
 int idrnet_recv_bytes(int sockfd, void *buf, int len) {
   return recv(sockfd, buf, len, 0);
 }
@@ -433,5 +449,6 @@ void idrnet_free_recvfrom_struct(void *res_struct) {
 }
 
 int idrnet_geteagain() { return EAGAIN; }
+int idrnet_getewouldblock() { return EWOULDBLOCK; }
 
 int isNull(void *ptr) { return ptr == NULL; }

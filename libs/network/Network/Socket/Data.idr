@@ -58,6 +58,17 @@ EAGAIN =
   -- maybe
   unsafePerformIO $ primIO $ prim__idrnet_geteagain
 
+  -- Repeat to avoid a dependency cycle
+%foreign "C:idrnet_getewouldblock, libidris2_support, idris_net.h"
+prim__idrnet_getewouldblock : PrimIO Int
+
+export
+EWOULDBLOCK : Int
+EWOULDBLOCK =
+  -- I'm sorry
+  -- maybe
+  unsafePerformIO $ primIO $ prim__idrnet_getewouldblock
+
 -- ---------------------------------------------------------------- [ Error Code ]
 
 -- repeat without export to avoid dependency cycles

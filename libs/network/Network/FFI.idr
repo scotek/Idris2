@@ -82,6 +82,12 @@ prim__idrnet_send_buf : (sockfd : SocketDescriptor) -> (dataBuffer : AnyPtr) -> 
 export
 prim__idrnet_recv : (sockfd : SocketDescriptor) -> (len : Int) -> PrimIO AnyPtr
 
+%foreign "C__collect_safe:idrnet_recv_nb, libidris2_support, idris_net.h"
+         "C:idrnet_recv_nb, libidris2_support, idris_net.h"
+export
+prim__idrnet_recv_nb : (sockfd : SocketDescriptor) -> (len : Int) -> PrimIO AnyPtr
+
+
 %foreign "C:idrnet_recv_bytes, libidris2_support, idris_net.h"
 export
 prim__idrnet_recv_bytes : (sockfd : SocketDescriptor) -> (content : Buffer) -> (nbytes : Int) -> (flags : Bits32) -> PrimIO Int
@@ -144,6 +150,9 @@ prim__idrnet_free_recvfrom_struct : (res_struct : AnyPtr) -> PrimIO ()
 %foreign "C:idrnet_geteagain, libidris2_support, idris_net.h"
 export
 prim__idrnet_geteagain : PrimIO Int
+%foreign "C:idrnet_getewouldblock, libidris2_support, idris_net.h"
+export
+prim__idrnet_getewouldblock : PrimIO Int
 
 %foreign "C:idrnet_errno, libidris2_support, idris_net.h"
 export
